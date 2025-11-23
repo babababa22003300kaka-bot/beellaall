@@ -5,151 +5,448 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مدير السوشيال ميديا</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            margin: 0;
-            padding: 20px;
+        :root {
+            --sidebar-width: 280px;
+            --bg-dark: #17212b;
+            /* Dark blue-grey like Telegram Desktop */
+            --bg-darker: #0e1621;
+            --text-primary: #f5f5f5;
+            --text-secondary: #7f91a4;
+            --accent-blue: #3390ec;
+            --hover-bg: rgba(255, 255, 255, 0.05);
+
+            /* Brand Colors */
+            --fb-color: #1877f2;
+            --ig-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            --tg-color: #2481cc;
+            --ai-color: #8b5cf6;
         }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+
+        .brand {
+            padding: 25px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background-color: var(--bg-darker);
+        }
+
+        .brand i {
+            color: var(--accent-blue);
+        }
+
+        .sidebar-scroll {
+            overflow-y: auto;
+            flex: 1;
+            padding: 15px 10px;
+        }
+
+        .menu-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin: 20px 15px 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+            text-decoration: none;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background-color: var(--hover-bg);
+            transform: translateX(-3px);
+        }
+
+        .menu-item.active {
+            background-color: rgba(51, 144, 236, 0.15);
+            color: var(--accent-blue);
+        }
+
+        .icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover .icon-box {
             background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            color: var(--bg-dark);
+            transform: scale(1.1);
+        }
+
+        /* Brand Specific Icons */
+        .fb-icon {
+            color: var(--fb-color);
+        }
+
+        .menu-item:hover .fb-icon {
+            background: var(--fb-color);
+            color: white;
+        }
+
+        .ig-icon {
+            color: #e1306c;
+        }
+
+        .menu-item:hover .ig-icon {
+            background: var(--ig-gradient);
+            color: white;
+        }
+
+        .tg-icon {
+            color: var(--tg-color);
+        }
+
+        .menu-item:hover .tg-icon {
+            background: var(--tg-color);
+            color: white;
+        }
+
+        .ai-icon {
+            color: var(--ai-color);
+        }
+
+        .menu-item:hover .ai-icon {
+            background: var(--ai-color);
+            color: white;
+        }
+
+        .item-text {
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .badge {
+            background-color: var(--accent-blue);
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .badge.red {
+            background-color: #ff595a;
+        }
+
+        .badge.grey {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #aaa;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            background-color: #f0f2f5;
+            background-image: radial-gradient(#e1e5ea 1px, transparent 1px);
+            background-size: 20px 20px;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+            max-width: 800px;
+            margin: 0 auto 30px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         h1 {
-            text-align: center;
-            color: #444;
+            margin: 0 0 20px;
+            color: #1a1a1a;
+            font-size: 1.8rem;
         }
 
-        .section {
-            margin-bottom: 30px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input[type="text"],
-        textarea,
-        select {
+        /* Form Elements */
+        textarea {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 20px;
+            border: 2px solid #eef0f2;
+            border-radius: 15px;
+            font-size: 1rem;
+            background: #f9fafb;
+            transition: all 0.3s;
             box-sizing: border-box;
+            resize: none;
         }
 
-        button {
-            background-color: #28a745;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
+        textarea:focus {
+            border-color: var(--accent-blue);
+            background: #fff;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(51, 144, 236, 0.1);
         }
 
-        button:hover {
-            background-color: #218838;
-        }
-
-        .checkbox-group {
+        .platform-selector {
             display: flex;
             gap: 15px;
-            margin-bottom: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
         }
 
-        .checkbox-group label {
-            font-weight: normal;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        .platform-option {
+            flex: 1;
+            min-width: 120px;
+            position: relative;
         }
 
-        .log-box {
-            background: #333;
-            color: #0f0;
-            padding: 15px;
-            border-radius: 4px;
-            height: 200px;
-            overflow-y: auto;
-            font-family: monospace;
-        }
-
-        .status {
-            margin-top: 10px;
-            padding: 10px;
-            border-radius: 4px;
+        .platform-option input {
             display: none;
         }
 
-        .success {
-            background-color: #d4edda;
-            color: #155724;
+        .platform-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #eef0f2;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fff;
+            color: #555;
         }
 
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
+        .platform-card i {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            transition: transform 0.3s;
+        }
+
+        .platform-option input:checked+.platform-card {
+            border-color: var(--accent-blue);
+            background: rgba(51, 144, 236, 0.05);
+            color: var(--accent-blue);
+        }
+
+        .platform-option input:checked+.platform-card i {
+            transform: scale(1.2);
+        }
+
+        .btn-publish {
+            background: linear-gradient(135deg, #3390ec, #0e72cc);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(51, 144, 236, 0.3);
+        }
+
+        .btn-publish:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(51, 144, 236, 0.4);
+        }
+
+        .btn-publish:active {
+            transform: translateY(0);
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ccc;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        .status-indicator.connected {
+            background: #10b981;
+            box-shadow: 0 0 5px #10b981;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .sidebar:hover ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h1>مدير السوشيال ميديا الموحد</h1>
-            <a href="/settings"
-                style="background: #007bff; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px;">⚙️
-                الإعدادات</a>
-        </div>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-rocket"></i>
+                <span>Social Orbit</span>
+            </div>
 
-        <div class="section">
-            <h2>نشر جديد</h2>
-            <form id="postForm">
-                <label for="message">نص المنشور:</label>
-                <textarea id="message" rows="4" placeholder="اكتب المنشور هنا..."></textarea>
-
-                <label>المنصات:</label>
-                <div class="checkbox-group">
-                    <label>
-                        <input type="checkbox" id="fb_check" value="facebook"> فيسبوك
-                        <span id="fb_status" style="font-size: 12px; margin-right: 5px;">⚪</span>
-                    </label>
-                    <label>
-                        <input type="checkbox" id="ig_check" value="instagram"> إنستجرام
-                        <span id="ig_status" style="font-size: 12px; margin-right: 5px;">⚪</span>
-                    </label>
-                    <label>
-                        <input type="checkbox" id="tg_check" value="telegram"> تيليجرام
-                        <span id="tg_status" style="font-size: 12px; margin-right: 5px;">⚪</span>
-                    </label>
+            <div class="sidebar-scroll">
+                <!-- Facebook -->
+                <div class="menu-category">فيسبوك</div>
+                <div class="menu-item">
+                    <div class="icon-box fb-icon"><i class="fa-brands fa-facebook-f"></i></div>
+                    <span class="item-text">نشر بوست</span>
+                    <span class="badge"><i class="fa-solid fa-plus"></i></span>
+                </div>
+                <div class="menu-item">
+                    <div class="icon-box fb-icon"><i class="fa-brands fa-facebook-messenger"></i></div>
+                    <span class="item-text">الرسائل</span>
+                    <span class="badge red">3</span>
+                </div>
+                <div class="menu-item">
+                    <div class="icon-box fb-icon"><i class="fa-solid fa-comments"></i></div>
+                    <span class="item-text">التعليقات</span>
+                    <span class="badge grey">0</span>
                 </div>
 
-                <button type="submit">نشر الآن</button>
-            </form>
-            <div id="postStatus" class="status"></div>
-        </div>
+                <!-- Instagram -->
+                <div class="menu-category">إنستجرام</div>
+                <div class="menu-item">
+                    <div class="icon-box ig-icon"><i class="fa-brands fa-instagram"></i></div>
+                    <span class="item-text">نشر ميديا</span>
+                </div>
+                <div class="menu-item">
+                    <div class="icon-box ig-icon"><i class="fa-regular fa-paper-plane"></i></div>
+                    <span class="item-text">الدايركت</span>
+                    <span class="badge red">12</span>
+                </div>
 
-        <div class="section">
-            <h2>سجل النشاط (Logs)</h2>
-            <div class="log-box" id="logs">
-                <div>[System] النظام جاهز...</div>
+                <!-- Telegram -->
+                <div class="menu-category">تيليجرام</div>
+                <div class="menu-item">
+                    <div class="icon-box tg-icon"><i class="fa-brands fa-telegram"></i></div>
+                    <span class="item-text">القنوات</span>
+                    <span class="badge">جديد</span>
+                </div>
+
+                <!-- AI Tools -->
+                <div class="menu-category">الأدوات الذكية</div>
+                <div class="menu-item">
+                    <div class="icon-box ai-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <span class="item-text">مساعد AI</span>
+                </div>
+                <a href="/settings" class="menu-item">
+                    <div class="icon-box ai-icon"><i class="fa-solid fa-gear"></i></div>
+                    <span class="item-text">الإعدادات</span>
+                </a>
             </div>
-        </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="glass-panel">
+                <h1>👋 أهلاً بك، جاهز للنشر؟</h1>
+
+                <form id="postForm">
+                    <label style="font-weight: bold; color: #555; margin-bottom: 10px; display: block;">محتوى
+                        المنشور</label>
+                    <textarea id="message" rows="4" placeholder="اكتب شيئاً مميزاً اليوم..."></textarea>
+
+                    <div class="platform-selector">
+                        <label class="platform-option">
+                            <input type="checkbox" id="fb_check" value="facebook">
+                            <div class="platform-card">
+                                <div id="fb_status" class="status-indicator"></div>
+                                <i class="fa-brands fa-facebook" style="color: var(--fb-color);"></i>
+                                <span>فيسبوك</span>
+                            </div>
+                        </label>
+
+                        <label class="platform-option">
+                            <input type="checkbox" id="ig_check" value="instagram">
+                            <div class="platform-card">
+                                <div id="ig_status" class="status-indicator"></div>
+                                <i class="fa-brands fa-instagram" style="color: #e1306c;"></i>
+                                <span>إنستجرام</span>
+                            </div>
+                        </label>
+
+                        <label class="platform-option">
+                            <input type="checkbox" id="tg_check" value="telegram">
+                            <div class="platform-card">
+                                <div id="tg_status" class="status-indicator"></div>
+                                <i class="fa-brands fa-telegram" style="color: var(--tg-color);"></i>
+                                <span>تيليجرام</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-publish">
+                        <i class="fa-solid fa-paper-plane"></i> نشر على الكل
+                    </button>
+                </form>
+                <div id="postStatus" style="margin-top: 15px; text-align: center; font-weight: bold;"></div>
+            </div>
+
+            <div class="glass-panel" style="padding: 20px;">
+                <h3 style="margin-top: 0;"><i class="fa-solid fa-clock-rotate-left"></i> آخر النشاطات</h3>
+                <div id="logs" style="font-family: monospace; color: #555; max-height: 200px; overflow-y: auto;">
+                    <div style="padding: 5px 0; border-bottom: 1px dashed #eee;">[System] النظام جاهز...</div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script>
@@ -170,11 +467,9 @@
         function updateStatus(elementId, isConnected) {
             const el = document.getElementById(elementId);
             if (isConnected) {
-                el.textContent = '🟢 متصل';
-                el.style.color = 'green';
+                el.classList.add('connected');
             } else {
-                el.textContent = '🔴 غير متصل';
-                el.style.color = 'red';
+                el.classList.remove('connected');
             }
         }
 
@@ -194,9 +489,8 @@
             }
 
             const statusDiv = document.getElementById('postStatus');
-            statusDiv.style.display = 'block';
-            statusDiv.className = 'status';
-            statusDiv.textContent = 'جاري النشر...';
+            statusDiv.style.color = '#3390ec';
+            statusDiv.textContent = 'جاري النشر... ⏳';
 
             try {
                 const response = await fetch('/publish', {
@@ -206,11 +500,11 @@
                 });
                 const result = await response.json();
 
-                statusDiv.classList.add('success');
-                statusDiv.textContent = 'تم النشر بنجاح: ' + JSON.stringify(result);
+                statusDiv.style.color = '#10b981';
+                statusDiv.innerHTML = '<i class="fa-solid fa-check-circle"></i> تم النشر بنجاح!';
                 addLog('تم النشر: ' + message);
             } catch (error) {
-                statusDiv.classList.add('error');
+                statusDiv.style.color = '#ef4444';
                 statusDiv.textContent = 'حدث خطأ: ' + error;
                 addLog('خطأ في النشر: ' + error);
             }
@@ -219,6 +513,8 @@
         function addLog(text) {
             const logs = document.getElementById('logs');
             const entry = document.createElement('div');
+            entry.style.padding = '5px 0';
+            entry.style.borderBottom = '1px dashed #eee';
             entry.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
             logs.prepend(entry);
         }
