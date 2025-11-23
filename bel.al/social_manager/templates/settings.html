@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إعدادات مدير السوشيال ميديا</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #444;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .back-link {
+            display: block;
+            margin-bottom: 20px;
+            color: #666;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+            text-align: center;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← عودة للرئيسية</a>
+        <h1>إعدادات الربط (API Keys)</h1>
+
+        <form id="settingsForm">
+            <div class="section">
+                <h2>فيسبوك & إنستجرام</h2>
+                <label>Facebook Page Access Token:</label>
+                <input type="password" id="fb_token" name="FB_PAGE_ACCESS_TOKEN" placeholder="EAAB...">
+
+                <label>Facebook Verify Token (للويب هوك):</label>
+                <input type="text" id="fb_verify" name="FB_VERIFY_TOKEN" placeholder="my_secret_token">
+
+                <label>Instagram Account ID:</label>
+                <input type="text" id="ig_id" name="IG_ACCOUNT_ID" placeholder="17841...">
+            </div>
+
+            <div class="section">
+                <h2>تيليجرام</h2>
+                <label>Bot Token:</label>
+                <input type="password" id="tg_token" name="TELEGRAM_BOT_TOKEN" placeholder="123456:ABC-...">
+
+                <label>Chat ID (للاختبار):</label>
+                <input type="text" id="tg_chat" name="TELEGRAM_CHAT_ID" placeholder="123456789">
+            </div>
+
+            <div class="section">
+                <h2>الذكاء الاصطناعي (Gemini)</h2>
+                <label>Gemini API Key:</label>
+                <input type="password" id="gemini_key" name="GEMINI_API_KEY" placeholder="AIzaSy...">
+            </div>
+
+            <button type="submit">حفظ الإعدادات</button>
+            <div id="statusMsg" class="status-message"></div>
+        </form>
+    </div>
+
+    <script>
+        // Load current settings on page load
+        async function loadSettings() {
+            try {
+                const res = await fetch('/api/settings');
+                const data = await res.json();
+
+                document.getElementById('fb_token').value = data.FB_PAGE_ACCESS_TOKEN || '';
+                document.getElementById('fb_verify').value = data.FB_VERIFY_TOKEN || '';
+                document.getElementById('ig_id').value = data.IG_ACCOUNT_ID || '';
+                document.getElementById('tg_token').value = data.TELEGRAM_BOT_TOKEN || '';
+                document.getElementById('tg_chat').value = data.TELEGRAM_CHAT_ID || '';
+                document.getElementById('gemini_key').value = data.GEMINI_API_KEY || '';
+            } catch (e) {
+                console.error("Failed to load settings", e);
+            }
+        }
+        loadSettings();
+
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            const msgDiv = document.getElementById('statusMsg');
+            msgDiv.style.display = 'block';
+            msgDiv.textContent = 'جاري الحفظ...';
+            msgDiv.className = 'status-message';
+
+            try {
+                const res = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    msgDiv.classList.add('success');
+                    msgDiv.textContent = 'تم حفظ الإعدادات بنجاح! يرجى إعادة تشغيل السيرفر لتفعيل التغييرات.';
+                } else {
+                    throw new Error('Failed to save');
+                }
+            } catch (error) {
+                msgDiv.classList.add('error');
+                msgDiv.textContent = 'حدث خطأ أثناء الحفظ.';
+            }
+        });
+    </script>
+</body>
+
+</html>

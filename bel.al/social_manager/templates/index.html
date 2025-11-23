@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدير السوشيال ميديا</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #444;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group label {
+            font-weight: normal;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .log-box {
+            background: #333;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 4px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>مدير السوشيال ميديا الموحد</h1>
+            <a href="/settings"
+                style="background: #007bff; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px;">⚙️
+                الإعدادات</a>
+        </div>
+
+        <div class="section">
+            <h2>نشر جديد</h2>
+            <form id="postForm">
+                <label for="message">نص المنشور:</label>
+                <textarea id="message" rows="4" placeholder="اكتب المنشور هنا..."></textarea>
+
+                <label>المنصات:</label>
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" id="fb_check" value="facebook"> فيسبوك
+                        <span id="fb_status" style="font-size: 12px; margin-right: 5px;">⚪</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="ig_check" value="instagram"> إنستجرام
+                        <span id="ig_status" style="font-size: 12px; margin-right: 5px;">⚪</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="tg_check" value="telegram"> تيليجرام
+                        <span id="tg_status" style="font-size: 12px; margin-right: 5px;">⚪</span>
+                    </label>
+                </div>
+
+                <button type="submit">نشر الآن</button>
+            </form>
+            <div id="postStatus" class="status"></div>
+        </div>
+
+        <div class="section">
+            <h2>سجل النشاط (Logs)</h2>
+            <div class="log-box" id="logs">
+                <div>[System] النظام جاهز...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check status
+        async function checkStatus() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+
+                updateStatus('fb_status', data.facebook);
+                updateStatus('ig_status', data.instagram);
+                updateStatus('tg_status', data.telegram);
+            } catch (e) {
+                console.error("Status check failed", e);
+            }
+        }
+
+        function updateStatus(elementId, isConnected) {
+            const el = document.getElementById(elementId);
+            if (isConnected) {
+                el.textContent = '🟢 متصل';
+                el.style.color = 'green';
+            } else {
+                el.textContent = '🔴 غير متصل';
+                el.style.color = 'red';
+            }
+        }
+
+        checkStatus();
+
+        document.getElementById('postForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = document.getElementById('message').value;
+            const platforms = [];
+            if (document.getElementById('fb_check').checked) platforms.push('facebook');
+            if (document.getElementById('ig_check').checked) platforms.push('instagram');
+            if (document.getElementById('tg_check').checked) platforms.push('telegram');
+
+            if (!message || platforms.length === 0) {
+                alert('يرجى كتابة رسالة واختيار منصة واحدة على الأقل');
+                return;
+            }
+
+            const statusDiv = document.getElementById('postStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = 'جاري النشر...';
+
+            try {
+                const response = await fetch('/publish', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, platforms })
+                });
+                const result = await response.json();
+
+                statusDiv.classList.add('success');
+                statusDiv.textContent = 'تم النشر بنجاح: ' + JSON.stringify(result);
+                addLog('تم النشر: ' + message);
+            } catch (error) {
+                statusDiv.classList.add('error');
+                statusDiv.textContent = 'حدث خطأ: ' + error;
+                addLog('خطأ في النشر: ' + error);
+            }
+        });
+
+        function addLog(text) {
+            const logs = document.getElementById('logs');
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+            logs.prepend(entry);
+        }
+    </script>
+</body>
+
+</html>
